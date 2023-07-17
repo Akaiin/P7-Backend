@@ -1,7 +1,9 @@
 const express = require('express')
 const app = express()
 const mongoose = require('mongoose')
-const booksRoute = require('./routes/books')
+const booksRoutes = require('./routes/books')
+const userRoutes = require('./routes/user')
+const path = require('path')
 
 mongoose
 
@@ -16,6 +18,7 @@ mongoose
     .catch(() => console.log('Connexion à MongoDB échouée !'))
 
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*')
@@ -26,6 +29,8 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
     next()
 })
+app.use('/images', express.static(path.join(__dirname, 'images')))
+app.use('/api/books', booksRoutes)
+app.use('/api/auth', userRoutes)
 
-app.use('/api/books', booksRoute)
 module.exports = app
