@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const booksRoutes = require('./routes/books')
 const userRoutes = require('./routes/user')
 const path = require('path')
+const mongoSanitize = require('express-mongo-sanitize')
 
 mongoose
 
@@ -19,6 +20,7 @@ mongoose
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(mongoSanitize())
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*')
