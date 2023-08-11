@@ -37,6 +37,12 @@ exports.getBestrating = (req, res, next) => {
         })
 }
 
+function calculateRatings(ratings) {
+    const totalRatings = ratings.length
+    const sumRatings = ratings.reduce((sum, rating) => sum + rating.grade, 0)
+    return { totalRatings, sumRatings }
+}
+
 exports.addRate = (req, res, next) => {
     Book.findOne({ _id: req.params.id })
         .then((book) => {
@@ -44,25 +50,22 @@ exports.addRate = (req, res, next) => {
             const existingRating = book.ratings.find((rating) => rating.userId === currentUserId)
 
             if (existingRating) {
-                return res.status(400).json({ error: 'Note déjà ajoutée auparavant.' })
+                return res.status(400).json({ error: 'Vous avez déjà noté ce livre.' })
             } else {
                 book.ratings.push({
                     userId: req.auth.userId,
                     grade: req.body.rating,
                 })
             }
-            const totalRatings = book.ratings.length
-            const sumRatings = book.ratings.reduce((sum, rating) => sum + rating.grade, 0)
+
+            const { totalRatings, sumRatings } = calculateRatings(book.ratings)
             const averageRating = Math.round(sumRatings / totalRatings)
             book.averageRating = averageRating
 
-            book.save()
-                .then(() => {
-                    res.status(200).json(book)
-                })
-                .catch((error) => {
-                    res.status(400).json({ error })
-                })
+            return book.save()
+        })
+        .then((savedBook) => {
+            res.status(200).json(savedBook)
         })
         .catch((error) => {
             res.status(400).json({ error })
