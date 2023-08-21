@@ -3,10 +3,18 @@ const app = express()
 const booksRoutes = require('./routes/books')
 const userRoutes = require('./routes/user')
 const path = require('path')
+const mongoose = require('mongoose')
 const mongoSanitize = require('express-mongo-sanitize')
-const connectDB = require('./config/dbConfig')
+require('dotenv').config()
 
-connectDB()
+mongoose
+
+    .connect(process.env.MONGODB_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
+    .then(() => console.log('Connexion à MongoDB réussie !'))
+    .catch(() => console.log('Connexion à MongoDB échouée !'))
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
